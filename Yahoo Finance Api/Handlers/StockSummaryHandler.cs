@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Yahoo_Finance_Api.Apis;
@@ -26,6 +27,7 @@ namespace Yahoo_Finance_Api.Handlers
                 : _stockApi.GetStockSummaryAsync(request.Symbol, request.Region));
 
             var mapped = _mapper.Map<StockSummaryResult>(response.Content);
+            Console.WriteLine(mapped);
             return mapped;
         }
     }

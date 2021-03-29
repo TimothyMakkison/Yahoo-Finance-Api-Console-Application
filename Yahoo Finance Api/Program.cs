@@ -9,7 +9,6 @@ namespace Yahoo_Finance_Api
         {
             var serviceProvider = Startup.BuildService();
             var parser = serviceProvider.GetRequiredService<CommandLineParser>();
-
             await parser.RunArgs(args);
         }
     }

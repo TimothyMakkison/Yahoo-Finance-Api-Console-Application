@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Yahoo_Finance_Api.Apis;
@@ -32,6 +33,8 @@ namespace Yahoo_Finance_Api.Handlers
             }
 
             var mapped = _mapper.Map<StockHistoryResult>(response.Content);
+            var stringForm = string.Join("\n", mapped.Prices);
+            Console.WriteLine(stringForm);
             return mapped;
         }
     }

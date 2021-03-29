@@ -22,12 +22,12 @@ namespace Yahoo_Finance_Api
         public async Task RunArgs(string[] args)
         {
             args = GetArgs(args);
+            Console.WriteLine("\n");
 
             await Parser.Default.ParseArguments(args, _requestTypes)
             .Either(async result =>
             {
                 var response = await _mediator.Send(result);
-                Console.WriteLine(response);
             },
             async error =>
             {
