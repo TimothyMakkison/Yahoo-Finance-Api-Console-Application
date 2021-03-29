@@ -8,7 +8,7 @@ In this example the historic price for Tesla is retrieved.
 ![image](https://user-images.githubusercontent.com/49349513/112772710-36f53d80-902a-11eb-8483-1888c6399ee7.png)
 
 # Behavior
-* When run the app immediately calls `Startup.BuildService()` this behaves similarly to a Asp.Net `Startup` call by loading a configuration and then building a 'ServiceCollection' by adding services.
+* When run, the app immediately calls `Startup.BuildService()`. This behaves similarly to an Asp.Net `Startup` call by loading a configuration and then building a 'ServiceCollection' by adding services.
 ```
 services.AddMediatR(typeof(Program));
 services.AddAutoMapper(typeof(Program));
