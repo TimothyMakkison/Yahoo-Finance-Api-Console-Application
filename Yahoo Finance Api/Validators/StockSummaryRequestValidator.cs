@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
-using Yahoo_Finance_Api.Models.Requests;
+using Yahoo_Finance_Api.Handlers;
 
-namespace Yahoo_Finance_Api.Validators
+namespace Yahoo_Finance_Api.Validators;
+
+public class StockSummaryRequestValidator : AbstractValidator<StockSummaryRequest>
 {
-    public class StockSummaryRequestValidator : AbstractValidator<StockSummaryRequest>
+    public StockSummaryRequestValidator()
     {
-        public StockSummaryRequestValidator()
-        {
-            RuleFor(x => x.Symbol).NotEmpty();
-        }
+        RuleFor(x => x.Symbol).NotEmpty();
     }
 }

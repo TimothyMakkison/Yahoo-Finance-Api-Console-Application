@@ -1,34 +1,53 @@
 ﻿using AutoMapper;
+using CommandLine;
 using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Yahoo_Finance_Api.Apis;
-using Yahoo_Finance_Api.Models.Requests;
+using Yahoo_Finance_Api.Errors;
+using Yahoo_Finance_Api.Helpers;
 using Yahoo_Finance_Api.Models.Results;
 
-namespace Yahoo_Finance_Api.Handlers
+namespace Yahoo_Finance_Api.Handlers;
+
+[Verb("summary", HelpText = "Retrieve summary of stock.")]
+public record StockSummaryRequest : IRequest<Unit>
 {
-    public class StockSummaryHandler : IRequestHandler<StockSummaryRequest, StockSummaryResult>
+    [Value(0, HelpText = "Stock symbol.")]
+    public string Symbol { get; init; }
+    [Value(1, Required = false, HelpText = "Return type language.")]
+    public string Region { get; init; }
+}
+
+public class StockSummaryHandler : IRequestHandler<StockSummaryRequest, Unit>
+{
+    private readonly IStockApi _stockApi;
+    private readonly IMapper _mapper;
+    private readonly IConsoleWriter _consoleWriter;
+
+    public StockSummaryHandler(IStockApi stockApi, IMapper mapper, IConsoleWriter consoleWriter)
     {
-        private readonly IStockApi _stockApi;
-        private readonly IMapper _mapper;
+        _stockApi = stockApi;
+        _mapper = mapper;
+        _consoleWriter=consoleWriter;
+    }
 
-        public StockSummaryHandler(IStockApi stockApi, IMapper mapper)
+    public async Task<Unit> Handle(StockSummaryRequest request, CancellationToken cancellationToken)
+    {
+        var response = await (string.IsNullOrEmpty(request.Region)
+            ? _stockApi.GetStockSummaryAsync(request.Symbol)
+            : _stockApi.GetStockSummaryAsync(request.Symbol, request.Region));
+
+
+        if (!response.IsSuccessStatusCode)
         {
-            _stockApi = stockApi;
-            _mapper = mapper;
+            throw new NotSuccessException();
         }
 
-        public async Task<StockSummaryResult> Handle(StockSummaryRequest request, CancellationToken cancellationToken)
-        {
-            var response = await (string.IsNullOrEmpty(request.Region)
-                ? _stockApi.GetStockSummaryAsync(request.Symbol)
-                : _stockApi.GetStockSummaryAsync(request.Symbol, request.Region));
+        var mapped = _mapper.Map<StockSummaryResult>(response.Content);
+        _consoleWriter.WriteLine(mapped);
 
-            var mapped = _mapper.Map<StockSummaryResult>(response.Content);
-            Console.WriteLine(mapped);
-            return mapped;
-        }
+        return Unit.Value;
     }
 }

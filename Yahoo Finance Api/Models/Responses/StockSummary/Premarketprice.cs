@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Yahoo_Finance_Api.Models.Responses.StockSummary
+namespace Yahoo_Finance_Api.Models.Responses.StockSummary;
+
+public record Premarketprice
 {
-    public record Premarketprice
-    {
-        [JsonPropertyName("raw")]
-        public float Raw { get; init; }
-    }
+    [JsonPropertyName("raw")]
+    public float Raw { get; init; }
 }

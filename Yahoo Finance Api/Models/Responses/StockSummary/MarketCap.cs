@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Yahoo_Finance_Api.Models.Responses.StockSummary
+namespace Yahoo_Finance_Api.Models.Responses.StockSummary;
+
+public record Marketcap
 {
-    public record Marketcap
-    {
-        [JsonPropertyName("raw")]
-        public long Raw { get; init; }
-    }
+    [JsonPropertyName("raw")]
+    public long Raw { get; init; }
 }

@@ -7,54 +7,46 @@ using System;
 using Yahoo_Finance_Api.Apis;
 using Yahoo_Finance_Api.Extensions;
 using Yahoo_Finance_Api.Handlers.Pipelines;
+using Yahoo_Finance_Api.Helpers;
 
-namespace Yahoo_Finance_Api
+namespace Yahoo_Finance_Api;
+
+public static class Startup
 {
-    public static class Startup
+    public static IConfigurationRoot BuildConfiguration()
     {
-        public static ServiceProvider BuildService()
-        {
-            var configuration = BuildConfiguration();
-            var serviceProvider = BuildServiceProvider(configuration);
-            return serviceProvider;
-        }
+        var configuration = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json")
+                        .Build();
 
-        private static IConfigurationRoot BuildConfiguration()
-        {
-            return new ConfigurationBuilder()
-                            .AddJsonFile("appsettings.json")
-                            .Build();
-        }
+        return configuration;
+    }
 
-        private static ServiceProvider BuildServiceProvider(IConfigurationRoot configuration)
-        {
-            var services = new ServiceCollection();
-            ConfigureServices(configuration, services);
+    public static ServiceProvider CreateServiceProvider(IConfigurationRoot configuration)
+    {
+        var services = new ServiceCollection();
 
-            return services.BuildServiceProvider();
-        }
+        services.AddMediatR(typeof(Program));
+        services.AddAutoMapper(typeof(Program));
+        services.AddCommandLineParser(typeof(Program));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+        services.AddSingleton<CommandLineParser>();
+        services.AddSingleton<IConsoleWriter, ConsoleWriter>();
 
-        private static void ConfigureServices(IConfigurationRoot configuration, ServiceCollection services)
-        {
-            services.AddMediatR(typeof(Program));
-            services.AddAutoMapper(typeof(Program));
-            services.AddCommandLineParser(typeof(Program));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+        services.BuildRefitclient(configuration);
 
-            BuildRefitclient(configuration, services);
-            services.AddSingleton<CommandLineParser>();
-        }
+        return services.BuildServiceProvider();
+    }
 
-        private static void BuildRefitclient(IConfigurationRoot configuration, ServiceCollection services)
-        {
-            services.AddRefitClient<IStockApi>()
-                .ConfigureHttpClient(client =>
-                {
-                    client.BaseAddress = new Uri(configuration["YahooFinanceApi:BaseAddress"]);
-                    client.DefaultRequestHeaders.Add("x-rapidapi-key", configuration["YahooFinanceApi:x-rapidapi-key"]);
-                    client.DefaultRequestHeaders.Add("x-rapidapi-host", configuration["YahooFinanceApi:x-rapidapi-host"]);
-                });
-        }
+    private static void BuildRefitclient(this ServiceCollection services, IConfigurationRoot configuration)
+    {
+        services.AddRefitClient<IStockApi>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(configuration["YahooFinanceApi:BaseAddress"]);
+                client.DefaultRequestHeaders.Add("x-rapidapi-key", configuration["YahooFinanceApi:x-rapidapi-key"]);
+                client.DefaultRequestHeaders.Add("x-rapidapi-host", configuration["YahooFinanceApi:x-rapidapi-host"]);
+            });
     }
 }

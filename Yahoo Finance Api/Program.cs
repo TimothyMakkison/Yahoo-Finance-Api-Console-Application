@@ -1,15 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
+using Yahoo_Finance_Api;
 
-namespace Yahoo_Finance_Api
-{
-    public class Program
-    {
-        private static async Task Main(string[] args)
-        {
-            var serviceProvider = Startup.BuildService();
-            var parser = serviceProvider.GetRequiredService<CommandLineParser>();
-            await parser.RunArgs(args);
-        }
-    }
-}
+var configuration = Startup.BuildConfiguration();
+var serviceProvider = Startup.CreateServiceProvider(configuration);
+
+var parser = serviceProvider.GetRequiredService<CommandLineParser>();
+await parser.RunArgs(args);
